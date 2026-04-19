@@ -1,14 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import Header from "./components/Header";
 import About from "./components/About";
+import PageLoader from "./components/PageLoader";
 import "./index.css";
-
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-  <Header/>
-  <About/>
+    <>
+      <PageLoader />
+      <Header />
+      <About />
+    </>
   </React.StrictMode>
 );
