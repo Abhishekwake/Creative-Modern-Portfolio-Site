@@ -1,8 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "@studio-freight/lenis";
-import outcrowdLogo from "../assets/OutCrowd.svg";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -109,6 +108,8 @@ function useMagneticCardX({
 
 export default function Hero() {
   /** Single hero shell: trigger + pin target (avoids nested 100vh = blank band) */
+  const [isMuted, setIsMuted] = useState(true);
+  const [isLightMode, setIsLightMode] = useState(false);
   const sectionRef = useRef(null);
   const cardTrackRef = useRef(null);
   const cardListenerRef = useRef(null);
@@ -117,6 +118,8 @@ export default function Hero() {
   const imgRef = useRef(null);
   const headlineRef = useRef(null);
   const scrollProgressRef = useRef(0);
+  const headerStripRef = useRef(null);
+  const headerCtaRef = useRef(null);
 
   const xToRef = useMagneticCardX({
     cardListenerRef,
@@ -124,6 +127,40 @@ export default function Hero() {
     floatingRef,
     scrollProgressRef,
   });
+
+  useEffect(() => {
+    if (isLightMode) {
+      document.documentElement.classList.add("light-mode");
+    } else {
+      document.documentElement.classList.remove("light-mode");
+    }
+  }, [isLightMode]);
+
+  const toggleVideoMute = () => {
+    const v = imgRef.current;
+    if (!v) return;
+    const nextMuted = !isMuted;
+    v.muted = nextMuted;
+    if (!nextMuted) {
+      v.volume = 1;
+      v.play().catch(() => { });
+    }
+    setIsMuted(nextMuted);
+  };
+
+  useEffect(() => {
+    const v = imgRef.current;
+    if (!v) return;
+    v.muted = isMuted;
+    if (!isMuted) {
+      v.play().catch(() => {
+        // If autoplay with sound is blocked, keep video visible and playing muted.
+        v.muted = true;
+        setIsMuted(true);
+        v.play().catch(() => { });
+      });
+    }
+  }, [isMuted]);
 
   /* ---------- Lenis + GSAP ticker ---------- */
   useEffect(() => {
@@ -199,7 +236,7 @@ export default function Hero() {
       borderRadius: 10,
       opacity: 1,
       boxShadow:
-        "0 4px 24px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02)",
+        "0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)",
     });
     gsap.set(img, {
       scale: 1,
@@ -208,6 +245,47 @@ export default function Hero() {
     });
 
 
+
+    const strip = headerStripRef.current;
+    const cta = headerCtaRef.current;
+    if (strip) gsap.set(strip, { autoAlpha: 1, y: 0 });
+    if (cta) gsap.set(cta, { autoAlpha: 1, y: 0 });
+
+    const hideHeaderBar = () => {
+      const targets = [strip].filter(Boolean);
+      if (!targets.length) return;
+      gsap.killTweensOf(targets);
+      gsap.to(targets, {
+        autoAlpha: 0,
+        y: -28,
+        duration: 0.55,
+        ease: "power3.inOut",
+        stagger: 0.04,
+        overwrite: "auto",
+        onComplete: () => {
+          targets.forEach((el) => {
+            if (el) el.setAttribute("aria-hidden", "true");
+          });
+        },
+      });
+    };
+
+    const showHeaderBar = () => {
+      const targets = [strip].filter(Boolean);
+      if (!targets.length) return;
+      gsap.killTweensOf(targets);
+      targets.forEach((el) => {
+        el.removeAttribute("aria-hidden");
+      });
+      gsap.to(targets, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power3.out",
+        stagger: 0.05,
+        overwrite: "auto",
+      });
+    };
 
     let lastProgress = 0;
     const tl = gsap.timeline({
@@ -230,6 +308,8 @@ export default function Hero() {
           }
           lastProgress = p;
         },
+        onLeave: hideHeaderBar,
+        onEnterBack: showHeaderBar,
       },
     });
 
@@ -273,7 +353,7 @@ export default function Hero() {
       img,
       {
         scale: 1.06,
-        filter: "brightness(0.92) blur(3px)",
+        filter: "brightness(0.7) blur(3px)",
         ease: "power2.inOut",
         duration: 0.45,
       },
@@ -284,12 +364,17 @@ export default function Hero() {
       img,
       {
         scale: 1,
-        filter: "brightness(1) blur(0px)",
+        filter: "brightness(0.9) blur(0px)",
         ease: "power3.out",
         duration: 0.55,
       },
       0.45
     );
+
+    requestAnimationFrame(() => {
+      const r = section.getBoundingClientRect();
+      if (r.bottom <= 64) hideHeaderBar();
+    });
 
     return () => {
       tl.scrollTrigger?.kill();
@@ -332,64 +417,79 @@ export default function Hero() {
 
   return (
     <>
-      <header className="pointer-events-none [&_a]:pointer-events-auto [&_div]:pointer-events-auto">
-        <div className="overflow-hidden fixed left-4 lg:left-8 right-4 lg:right-8 top-4 lg:top-6 grid grid-cols-12 gap-4 lg:gap-8 z-50 text-black">
+      <header className="pointer-events-none [&_a]:pointer-events-auto [&_div]:pointer-events-auto [&_button]:pointer-events-auto">
+        <div
+          ref={headerStripRef}
+          className="fixed left-4 lg:left-8 right-4 lg:right-8 top-4 lg:top-6 grid grid-cols-12 gap-4 lg:gap-8 z-50 text-[#fafafa] items-center"
+        >
 
-          <div className="col-span-6 lg:col-span-3 flex items-center">
-            <img
-              src={outcrowdLogo}
-              alt="Outcrowd Studio"
-              className="w-[115px] object-contain"
-            />
+          <div className="col-span-6 lg:col-span-3 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20 bg-black shrink-0 relative">
+              <img
+                src="/profile.jpg"
+                alt="Profile Icon"
+                className="w-full h-full object-cover"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            </div>
+            <span className="font-medium text-[clamp(16px,1.2vw,20px)] tracking-tight">Abhishek Wake</span>
           </div>
 
           <div className="hidden lg:flex col-span-4 flex-col justify-center">
-            <span className="block overflow-hidden"><div className="block font-medium text-[clamp(16px,1.2vw,20px)]" style={{ transform: "none" }}>Creative Agency</div></span>
-            <span className="block overflow-hidden"><div className="block font-medium text-neutral-500 text-[clamp(16px,1.2vw,20px)]" style={{ transform: "none" }}>Working globally</div></span>
+            <span className="block overflow-hidden"><div className="block font-medium text-[clamp(16px,1.2vw,20px)]" style={{ transform: "none" }}>Video Editor & Stratergist</div></span>
+            <span className="block overflow-hidden"><div className="block font-medium text-[#a3a3a3] text-[clamp(16px,1.2vw,20px)]" style={{ transform: "none" }}>Available for freelance</div></span>
           </div>
 
           <div className="hidden lg:flex col-span-3 flex-col justify-center">
             <span className="block overflow-hidden"><div className="block font-medium text-[clamp(16px,1.2vw,20px)]" style={{ transform: "none" }}>Project availability</div></span>
-            <span className="block overflow-hidden"><div className="block font-medium text-neutral-500 text-[clamp(16px,1.2vw,20px)]" style={{ transform: "none" }}>Accepting now</div></span>
+            <span className="block overflow-hidden"><div className="block font-medium text-[#a3a3a3] text-[clamp(16px,1.2vw,20px)]" style={{ transform: "none" }}>Accepting now</div></span>
           </div>
 
-          <a href="mailto:contact@outcrowd.com" className="fixed right-4 lg:right-8 top-4 lg:top-6 group cursor-pointer pointer-events-auto" aria-label="Send us an email" role="button" style={{ opacity: 1, transform: "none" }}>
-            <div className="relative">
-              <div className="absolute left-0 top-0 w-12 3xl:w-14 h-12 3xl:h-14 bg-black border border-neutral-800 rounded-full flex items-center justify-center rotate-180 scale-95 group-hover:scale-100 group-hover:rotate-0 group-hover:-translate-x-full transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] -z-10">
+          <div className="col-span-6 lg:col-span-2 flex justify-end items-center gap-3">
+            <button
+              onClick={() => setIsLightMode(!isLightMode)}
+              className="w-10 h-10 lg:w-12 lg:h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors duration-300 media-uninvert z-10"
+              aria-label="Toggle theme"
+            >
+              {isLightMode ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              )}
+            </button>
+            <a ref={headerCtaRef} href="mailto:contact@yourdomain.com" className="group cursor-pointer pointer-events-auto relative media-uninvert" aria-label="Send us an email" role="button" style={{ opacity: 1, transform: "none" }}>
+              <div className="absolute left-0 top-0 w-12 3xl:w-14 h-12 3xl:h-14 bg-white border border-white/10 rounded-full flex items-center justify-center rotate-180 scale-95 group-hover:scale-100 group-hover:rotate-0 group-hover:-translate-x-full transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] -z-10">
                 <span className="text-lg lg:text-xl 3xl:text-2xl">🤙🏼</span>
               </div>
-              <div className="flex items-center relative px-5 lg:px-6 h-12 lg:h-14 rounded-full bg-black text-white font-semibold text-[clamp(16px,1.2vw,20px)] border border-neutral-800 z-10">
+              <div className="flex items-center relative px-5 lg:px-6 h-12 lg:h-14 rounded-full bg-white text-black font-semibold text-[clamp(16px,1.2vw,20px)] border border-white/10 z-10">
                 <div className="overflow-hidden h-6 lg:h-7">
                   <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:-translate-y-1/2">
-                    <span className="text-[clamp(16px,1.2vw,20px)] text-white font-semibold mb-1.5 leading-snug">Start a Project</span>
-                    <span className="text-[clamp(16px,1.2vw,20px)] text-white font-semibold mb-1.5 leading-snug">Start a Project</span>
+                    <span className="text-[clamp(16px,1.2vw,20px)] text-black font-semibold mb-1.5 leading-snug">Hire Me</span>
+                    <span className="text-[clamp(16px,1.2vw,20px)] text-black font-semibold mb-1.5 leading-snug">Hire Me</span>
                   </div>
                 </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
 
         </div>
       </header>
 
       <section
         ref={sectionRef}
-        className="relative z-10 h-[100svh] w-full overflow-hidden [contain:layout_paint] bg-white isolate"
+        className="relative z-10 h-[100svh] w-full overflow-hidden [contain:layout_paint] bg-[#0a0a0a] isolate"
       >
-        <div className="absolute bottom-0 left-0 right-0 h-[0%] bg-gradient-to-t from-white to-transparent z-[1]" />
+        <div className="absolute bottom-0 left-0 right-0 h-[0%] bg-gradient-to-t from-[#0a0a0a] to-transparent z-[1]" />
 
-        {/*
-            End state: flex center keeps fullscreen perfectly centered.
-            Initial: cardFollow gets negative y (GSAP) so the small card sits higher like the old pt-28 hero.
-          */}
         <div className="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none px-4 lg:px-8">
           <div
             ref={cardTrackRef}
-            className="pointer-events-auto relative w-full max-w-[min(1100px,calc(100vw-2rem))] min-h-[min(440px,52vh)] flex items-center justify-center"
+            className="pointer-events-auto relative w-full max-w-[min(1100px,calc(100vw-2rem))] min-h-[min(360px,52vh)] md:min-h-[min(440px,52vh)] flex items-center justify-center"
           >
             <div
               ref={cardListenerRef}
-              className="absolute inset-0 z-30 touch-none"
+              className="absolute inset-0 z-30 touch-none cursor-pointer"
+              onClick={toggleVideoMute}
               aria-hidden
             />
             <div
@@ -398,15 +498,26 @@ export default function Hero() {
             >
               <div
                 ref={floatingRef}
-                className="relative shrink-0 w-[min(680px,calc(100vw-2rem))] h-[min(380px,48vh)] max-w-[100vw] overflow-hidden rounded-[10px] will-change-[width,height,transform,opacity] shadow-sm [backface-visibility:hidden]"
+                className="relative shrink-0 w-[min(680px,calc(100vw-2rem))] aspect-square md:aspect-[16/9] md:h-[min(380px,48vh)] max-w-[100vw] overflow-hidden rounded-[10px] will-change-[width,height,transform,opacity] shadow-sm [backface-visibility:hidden] border border-white/5 media-uninvert"
               >
-                <img
+                <video
                   ref={imgRef}
-                  src="/hero-center.jpg"
-                  alt=""
+                  src="/heromainvideo.mp4"
                   className="h-full w-full object-cover object-center pointer-events-none select-none"
-                  draggable={false}
+                  autoPlay
+                  muted={isMuted}
+                  loop
+                  playsInline
+                  preload="auto"
+                  poster="/hero-bg.jpg"
+                  aria-hidden="true"
                 />
+                <span
+                  className="pointer-events-none absolute top-3 right-3 z-40 text-[18px] leading-none text-white drop-shadow-md"
+                  aria-hidden="true"
+                >
+                  {isMuted ? "🔇" : "🔊"}
+                </span>
               </div>
             </div>
           </div>
@@ -415,27 +526,27 @@ export default function Hero() {
         <div className="relative z-10 h-full grid grid-cols-12 gap-8 px-4 lg:px-8 pointer-events-none [&_.headline-hit]:pointer-events-auto">
           <div
             ref={headlineRef}
-            className="headline-hit col-span-12 absolute bottom-20 left-0 right-0 px-4 lg:px-8 will-change-transform"
+            className="headline-hit col-span-12 absolute bottom-36 md:bottom-24 lg:bottom-20 left-0 right-0 px-4 lg:px-8 will-change-transform"
           >
             <div className="grid grid-cols-12 items-end gap-x-2">
-              <span className="font-medium col-span-3 mb-6 text-[20px] uppercase tracking-widest text-black/90">
+              <span className="font-medium col-span-3 mb-4 lg:mb-6 text-[clamp(12px,3vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
                 A
               </span>
-              <span className="font-medium col-span-6 mb-6 text-center text-[20px] uppercase tracking-widest text-black/90">
+              <span className="font-medium col-span-6 mb-4 lg:mb-6 text-center text-[clamp(12px,3vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
                 Seriously
               </span>
-              <span className="font-medium col-span-3 mb-6 text-right text-[20px] uppercase tracking-widest text-black/90">
+              <span className="font-medium col-span-3 mb-4 lg:mb-6 text-right text-[clamp(12px,3vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
                 Good
               </span>
 
-              <h1 className="col-span-12 text-center font-satoshi font-black uppercase leading-[0.95] tracking-[-0.06em] text-[#000000] text-[clamp(4.5rem,11vw,12rem)] max-w-[min(100%,calc(100vw-2rem))] mx-auto whitespace-normal sm:whitespace-nowrap">
-                Visual Engineers
+              <h1 className="col-span-12 text-center font-satoshi font-black uppercase leading-[0.95] tracking-[-0.06em] text-[#fafafa] text-[clamp(3rem,12vw,12rem)] max-w-[min(100%,calc(100vw-2rem))] mx-auto whitespace-normal sm:whitespace-nowrap drop-shadow-2xl">
+                Video Editor
               </h1>
             </div>
           </div>
 
-          <div className="absolute bottom-8 left-4 lg:left-8 text-sm text-black">
-            SCROLL
+          <div className="absolute bottom-8 left-4 lg:left-8 text-sm font-mono tracking-widest uppercase text-[#a3a3a3]">
+            Scroll
           </div>
         </div>
       </section>

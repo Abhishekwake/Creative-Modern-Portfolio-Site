@@ -19,7 +19,25 @@
   font-display: swap;
 }
 
-/* Global default */
+/* Premium Minimal Design System Variables */
+@layer base {
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #121212;
+    --text-primary: #fafafa;
+    --text-secondary: #a3a3a3;
+    --accent: #ffffff;
+    --border-light: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    @apply bg-[var(--bg-primary)] text-[var(--text-primary)] antialiased selection:bg-white selection:text-black;
+    font-family: 'Satoshi', system-ui, sans-serif;
+    overflow-x: clip;
+  }
+}
+
+/* Global default for Lenis */
 html.lenis,
 html.lenis body {
   height: auto;
@@ -29,7 +47,53 @@ html.lenis body {
   scroll-behavior: auto !important;
 }
 
-body {
-  font-family: 'Satoshi', system-ui, sans-serif;
-  overflow-x: clip;
+/* Subtle grain texture overlay for a premium feel */
+.bg-noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Global Light Mode via Inversion Strategy */
+html.light-mode {
+  filter: invert(1) hue-rotate(180deg);
+  background-color: #fafafa;
+}
+
+/* Un-invert images, videos, and specific elements so they look normal in light mode */
+html.light-mode img,
+html.light-mode video,
+html.light-mode .media-uninvert {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Hide ambient fluid orbs in light mode to prevent pink/red color artifacts */
+html.light-mode .animate-fluid {
+  display: none !important;
+}
+
+/* Premium Fluid Background Animations */
+@keyframes fluid-flow {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(3vw, -4vh) scale(1.05); }
+  66% { transform: translate(-2vw, 3vh) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.animate-fluid {
+  animation: fluid-flow 25s infinite ease-in-out alternate;
+}
+
+.delay-2000 {
+  animation-delay: 2s;
+}
+
+.delay-4000 {
+  animation-delay: 4s;
 }

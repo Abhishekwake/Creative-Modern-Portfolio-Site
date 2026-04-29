@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import rightPlaceholder from "../assets/rightplaceholder.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,7 +11,7 @@ export default function About() {
   const imageRef = useRef(null);
   const wrapperRef = useRef(null);
 
-  const paragraph = "Outcrowd Studio is a creative production and digital marketing studio built to turn ideas into powerful visual stories. We specialize in high-quality videography, cinematic video editing, and result-driven digital marketing that helps brands, businesses, and individuals stand out in a crowded digital world.";
+  const paragraph = "A growth-focused video editor and content strategist helping creators, businesses, and influencers turn ideas into content that performs. I specialize in retention-driven editing and performance-focused visuals, working with creators like K9 Vines (1M+ audience) and contributing to content for Imran Teli, a bestselling Udemy instructor, reaching 250K+ learners across 40+ countries.";
 
   const words = paragraph.split(" ");
 
@@ -19,10 +20,10 @@ export default function About() {
       // Image scroll parallax & scale effect
       gsap.fromTo(
         imageRef.current,
-        { scale: 1.25, filter: "brightness(0.6)" },
+        { scale: 1.15, filter: "brightness(0.5) grayscale(100%)" },
         {
           scale: 1,
-          filter: "brightness(1)",
+          filter: "brightness(0.9) grayscale(0%)",
           ease: "power2.out",
           scrollTrigger: {
             trigger: wrapperRef.current,
@@ -56,16 +57,19 @@ export default function About() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative z-20 w-full min-h-screen bg-white text-black pt-0 pb-12 sm:pb-16 flex items-center overflow-hidden">
-      <div ref={wrapperRef} className="grid grid-cols-12 gap-8 lg:gap-16 w-full mx-auto px-4 lg:px-8 items-center">
+    <section ref={containerRef} className="relative z-20 flex min-h-screen w-full items-center overflow-hidden bg-[#0a0a0a] text-[#fafafa] py-20 lg:py-32 border-t border-white/5">
+      <div ref={wrapperRef} className="max-w-[1400px] mx-auto grid w-full grid-cols-12 items-center gap-8 lg:gap-24 px-4 lg:px-8">
 
-        <div className="col-span-12 lg:col-span-7 flex flex-col justify-center font-satoshi order-2 lg:order-1 pt-4 lg:pt-0">
-          <h3 className="text-[clamp(1.2rem,1.5vw,1.5rem)] font-bold mb-8 uppercase tracking-[0.1em] text-neutral-400">
-            We Are
-          </h3>
+        <div className="order-2 col-span-12 flex flex-col justify-center font-satoshi lg:order-1 lg:col-span-7">
+          <div className="flex items-center gap-4 lg:gap-6 mb-8 lg:mb-12">
+            <div className="w-8 lg:w-12 h-[1px] bg-white/20"></div>
+            <h3 className="text-xs lg:text-sm font-mono tracking-widest uppercase text-[#a3a3a3]">
+              Hii im abhi
+            </h3>
+          </div>
           <p
             ref={textRef}
-            className="text-[clamp(2rem,3.5vw,5rem)] leading-[0.95] tracking-[-0.03em] font-satoshi font-medium text-black text-justify w-full"
+            className="text-[clamp(1.3rem,5vw,2rem)] lg:text-[clamp(1.75rem,3vw,3.5rem)] leading-[1.3] lg:leading-[1.15] tracking-[-0.02em] lg:tracking-[-0.03em] font-satoshi font-light text-[#fafafa] w-full"
             style={{ textAlignLast: "left" }}
           >
             {words.map((word, i) => (
@@ -79,17 +83,15 @@ export default function About() {
           </p>
         </div>
 
-        <div className="col-span-12 lg:col-span-5 relative order-1 lg:order-2 h-[50vh] sm:h-[60vh] lg:h-[70vh] w-full rounded-[24px] overflow-hidden shadow-[0_10px_60px_-15px_rgba(0,0,0,0.1)]">
-          <div className="absolute inset-0 z-10 10 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+        <div className="relative order-1 col-span-12 h-[40vh] w-full overflow-hidden rounded-[2rem] shadow-2xl sm:h-[60vh] lg:order-2 lg:col-span-5 lg:h-[70vh] border border-white/10 media-uninvert">
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           <img
             ref={imageRef}
-            src="/hero-center.jpg"
-            alt="Outcrowd Video Placeholder"
+            src="/profile.jpg"
+            alt="Abhi Profile"
             className="absolute inset-0 w-full h-full object-cover will-change-transform transform-gpu"
+            onError={(e) => { e.target.src = rightPlaceholder; }}
           />
-          <div className="absolute top-6 right-6 z-20 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-semibold uppercase tracking-wider px-4 py-2 rounded-full">
-            Video Placeholder
-          </div>
         </div>
 
       </div>
