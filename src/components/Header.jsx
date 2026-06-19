@@ -232,6 +232,10 @@ export default function Hero() {
       // Center card statically on mobile, offset it on desktop
       gsap.set(follow, { x: 0, xPercent: 0, y: isMobile ? 0 : INITIAL_CARD_FOLLOW_Y });
 
+      // Mobile: landscape video (16:9 aspect ratio)
+      // Desktop: landscape video (16:9 aspect ratio)
+      const isLandscape = true; // Always landscape
+
       gsap.set(card, {
         transformOrigin: "50% 50%",
         marginLeft: 0,
@@ -241,8 +245,9 @@ export default function Hero() {
         top: "auto",
         xPercent: 0,
         yPercent: 0,
+        // Landscape: width is full, height adjusts to 16:9 aspect ratio
         width: isMobile ? "calc(100vw - 2rem)" : "680px",
-        height: isMobile ? "calc((100vw - 2rem) * 16 / 9)" : "380px",
+        height: isMobile ? "calc((100vw - 2rem) * 9 / 16)" : "380px", // Changed to 9/16 for landscape
         borderRadius: 10,
         opacity: 1,
         boxShadow:
@@ -440,8 +445,8 @@ export default function Hero() {
     <>
       {/* Scroll Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-[2px] bg-white/5 z-[9999] pointer-events-none">
-        <div 
-          className="h-full bg-gradient-to-r from-neutral-500 via-neutral-200 to-white will-change-[width] transition-all duration-75 ease-out" 
+        <div
+          className="h-full bg-gradient-to-r from-neutral-500 via-neutral-200 to-white will-change-[width] transition-all duration-75 ease-out"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
@@ -505,20 +510,22 @@ export default function Hero() {
 
       <section
         ref={sectionRef}
-        className="relative z-10 h-[100svh] w-full overflow-hidden [contain:layout_paint] bg-[#0a0a0a] isolate"
+        className="relative z-10 min-h-screen md:h-[100svh] w-full overflow-hidden [contain:layout_paint] bg-[#0a0a0a] isolate flex flex-col items-center justify-center pt-28 pb-12 md:pt-0 md:pb-0 gap-8 md:gap-0"
       >
         <div className="absolute bottom-0 left-0 right-0 h-[0%] bg-gradient-to-t from-[#0a0a0a] to-transparent z-[1]" />
 
-        <div className="absolute inset-0 z-[5] flex items-center justify-center pointer-events-none px-4 lg:px-8">
+        <div className="relative md:absolute md:inset-0 z-[5] flex items-center justify-center pointer-events-none px-4 lg:px-8 w-full">
           <div
             ref={cardTrackRef}
-            className="pointer-events-auto relative w-full max-w-[min(1100px,calc(100vw-2rem))] min-h-[min(360px,52vh)] md:min-h-[min(440px,52vh)] flex items-center justify-center"
+            className="pointer-events-auto relative w-full max-w-[min(1100px,calc(100vw-2rem))] min-h-[min(280px,40vh)] md:min-h-[min(380px,48vh)] flex items-center justify-center"
           >
+            {/* Card listener - now allows scroll through on mobile */}
             <div
               ref={cardListenerRef}
-              className="absolute inset-0 z-30 touch-none cursor-pointer"
+              className="absolute inset-0 z-30 touch-none md:touch-auto cursor-pointer md:cursor-pointer"
               onClick={toggleVideoMute}
               aria-hidden
+              style={{ touchAction: 'pan-y' }}
             />
             <div
               ref={cardFollowRef}
@@ -551,10 +558,10 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="relative z-10 h-full grid grid-cols-12 gap-8 px-4 lg:px-8 pointer-events-none [&_.headline-hit]:pointer-events-auto">
+        <div className="relative md:absolute md:bottom-24 lg:bottom-20 left-0 right-0 px-4 lg:px-8 pointer-events-none [&_.headline-hit]:pointer-events-auto w-full z-10 mt-6 md:mt-0">
           <div
             ref={headlineRef}
-            className="headline-hit col-span-12 absolute bottom-36 md:bottom-24 lg:bottom-20 left-0 right-0 px-4 lg:px-8 will-change-transform"
+            className="headline-hit col-span-12 w-full will-change-transform"
           >
             <div className="grid grid-cols-12 items-end gap-x-2">
               <span className="font-medium col-span-3 mb-4 lg:mb-6 text-[clamp(12px,3vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
@@ -573,7 +580,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="absolute bottom-8 left-4 lg:left-8 text-sm font-mono tracking-widest uppercase text-[#a3a3a3]">
+          <div className="absolute bottom-8 left-4 lg:left-8 text-sm font-mono tracking-widest uppercase text-[#a3a3a3] hidden md:block">
             Scroll
           </div>
         </div>
@@ -581,9 +588,3 @@ export default function Hero() {
     </>
   );
 }
-
-
-
-
-
-

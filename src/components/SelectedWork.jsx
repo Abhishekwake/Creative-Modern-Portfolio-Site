@@ -56,18 +56,14 @@ function WorkCard({ project }) {
     if (Date.now() - lastOpenTime.current < 400) return;
     setLoaded(false);
   };
-
-  const showInlinePlayer = loaded && !isMobile;
-
   const cardChrome =
     "relative w-full min-w-0 overflow-hidden rounded-[18px] border border-white/10 bg-[#121212] transition-[transform,box-shadow,border-color] duration-500 ease-out will-change-transform active:translate-y-0 group-hover:-translate-y-2 group-hover:scale-[1.01] group-hover:border-white/20 md:rounded-[22px] touch-pan-y";
 
   return (
     <article className="group work-grid-card flex w-full min-w-0 flex-col select-none justify-self-stretch text-left touch-pan-y">
-      {/* Poster uses <button>; iframe/video are siblings — interactive content must not be nested inside <button>. */}
       <div className={cardChrome}>
         <div className="relative aspect-video w-full overflow-hidden rounded-[inherit] bg-black touch-pan-y">
-          {!showInlinePlayer ? (
+          {!loaded ? (
             <>
               <img
                 src={project.thumbSrc}
@@ -86,48 +82,64 @@ function WorkCard({ project }) {
                 className="absolute inset-0 z-10 rounded-[inherit] outline-none ring-white/20 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black touch-pan-y"
               />
             </>
-          ) : project.kind === "youtube" ? (
-            <div className="absolute inset-0 z-[1] bg-black">
-              <iframe
-                title={`${project.creator} video`}
-                className="h-full w-full rounded-[inherit] border-0"
-                src={youtubeEmbedSrc(project)}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                allowFullScreen
-              />
-            </div>
-          ) : project.kind === "cloudinary-sdk" &&
-            project.cloudName &&
-            project.publicId ? (
-            <div className="absolute inset-0 z-10 flex min-h-0 items-stretch bg-black">
-              <CloudinarySdkPlayer
-                cloudName={project.cloudName}
-                publicId={project.publicId}
-                poster={project.thumbSrc}
-              />
-            </div>
-          ) : project.kind === "cloudinary" &&
-            (project.deliveryUrl || (project.cloudName && project.publicId)) ? (
-            <div className="absolute inset-0 z-10 flex min-h-0 items-stretch bg-black">
-              <CloudinaryPlayerEmbed
-                deliveryUrl={project.deliveryUrl}
-                cloudName={project.cloudName}
-                publicId={project.publicId}
-                posterSrc={project.thumbSrc}
-              />
-            </div>
-          ) : project.videoUrl ? (
-            <video
-              controls
-              playsInline
-              preload="auto"
-              autoPlay
-              className="h-full w-full object-cover"
-              src={project.videoUrl}
-            >
-              <track kind="captions" />
-            </video>
-          ) : null}
+          ) : (
+            <>
+              {project.kind === "youtube" ? (
+                <div className="absolute inset-0 z-[1] bg-black">
+                  <iframe
+                    title={`${project.creator} video`}
+                    className="h-full w-full rounded-[inherit] border-0"
+                    src={youtubeEmbedSrc(project)}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowFullScreen
+                  />
+                </div>
+              ) : project.kind === "cloudinary-sdk" &&
+                project.cloudName &&
+                project.publicId ? (
+                <div className="absolute inset-0 z-10 flex min-h-0 items-stretch bg-black">
+                  <CloudinarySdkPlayer
+                    cloudName={project.cloudName}
+                    publicId={project.publicId}
+                    poster={project.thumbSrc}
+                  />
+                </div>
+              ) : project.kind === "cloudinary" &&
+                (project.deliveryUrl || (project.cloudName && project.publicId)) ? (
+                <div className="absolute inset-0 z-10 flex min-h-0 items-stretch bg-black">
+                  <CloudinaryPlayerEmbed
+                    deliveryUrl={project.deliveryUrl}
+                    cloudName={project.cloudName}
+                    publicId={project.publicId}
+                    posterSrc={project.thumbSrc}
+                  />
+                </div>
+              ) : project.videoUrl ? (
+                <video
+                  controls
+                  playsInline
+                  preload="auto"
+                  autoPlay
+                  className="h-full w-full object-cover"
+                  src={project.videoUrl}
+                >
+                  <track kind="captions" />
+                </video>
+              ) : null}
+
+              {/* Close Button overlay in top-right of the card video box */}
+              <button
+                type="button"
+                onClick={(e) => close(e)}
+                className="absolute top-4 right-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white backdrop-blur-md transition-all hover:bg-black/85 hover:scale-105 active:scale-95 cursor-pointer"
+                aria-label="Close player"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </>
+          )}
         </div>
       </div>
       <div className="mt-8 px-1">
@@ -137,93 +149,7 @@ function WorkCard({ project }) {
         <p className="font-satoshi max-w-[34ch] text-lg font-light leading-relaxed text-[#a3a3a3]">
           {project.audience}
         </p>
-        {loaded && !isMobile ? (
-          <button
-            type="button"
-            onClick={(e) => close(e)}
-            className="mt-4 font-satoshi text-sm font-medium text-[#a3a3a3] underline-offset-8 transition-colors hover:text-white hover:underline"
-          >
-            Close player
-          </button>
-        ) : null}
       </div>
-
-      {/* Modal/Lightbox for Mobile devices */}
-      {isMobile && loaded && (
-        <div 
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0a0a0a] backdrop-blur-md p-4 animate-fade-in"
-          onClick={close}
-        >
-          {/* Close button */}
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); close(e); }}
-            className="absolute top-6 right-6 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all active:scale-95"
-            aria-label="Close modal"
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          <div 
-            className="relative w-[90vw] max-w-[640px] aspect-video overflow-hidden rounded-[24px] border border-white/15 bg-black shadow-2xl transition-all"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {project.kind === "youtube" ? (
-              <div className="absolute inset-0 z-[1] bg-black">
-                <iframe
-                  title={`${project.creator} video`}
-                  className="h-full w-full rounded-[inherit] border-0"
-                  src={youtubeEmbedSrc(project)}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                  allowFullScreen
-                />
-              </div>
-            ) : project.kind === "cloudinary-sdk" &&
-              project.cloudName &&
-              project.publicId ? (
-              <div className="absolute inset-0 z-10 flex min-h-0 items-stretch bg-black animate-fade-in">
-                <CloudinarySdkPlayer
-                  cloudName={project.cloudName}
-                  publicId={project.publicId}
-                  poster={project.thumbSrc}
-                />
-              </div>
-            ) : project.kind === "cloudinary" &&
-              (project.deliveryUrl || (project.cloudName && project.publicId)) ? (
-              <div className="absolute inset-0 z-10 flex min-h-0 items-stretch bg-black animate-fade-in">
-                <CloudinaryPlayerEmbed
-                  deliveryUrl={project.deliveryUrl}
-                  cloudName={project.cloudName}
-                  publicId={project.publicId}
-                  posterSrc={project.thumbSrc}
-                />
-              </div>
-            ) : project.videoUrl ? (
-              <video
-                controls
-                playsInline
-                preload="auto"
-                autoPlay
-                className="h-full w-full object-cover"
-                src={project.videoUrl}
-              >
-                <track kind="captions" />
-              </video>
-            ) : null}
-          </div>
-
-          <div className="mt-6 text-center max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
-            <p className="font-satoshi text-xl font-light text-white mb-1">
-              {project.creator}
-            </p>
-            <p className="font-satoshi text-sm font-light text-[#a3a3a3]">
-              {project.audience}
-            </p>
-          </div>
-        </div>
-      )}
     </article>
   );
 }
