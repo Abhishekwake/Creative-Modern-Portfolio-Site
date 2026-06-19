@@ -4,16 +4,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const MAIL = "contact@yourdomain.com";
+const MAIL = "abhishekwake111@gmail.com";
 const WHATSAPP_DIGITS =
   typeof import.meta !== "undefined" && import.meta.env?.VITE_WHATSAPP_DIGITS
     ? String(import.meta.env.VITE_WHATSAPP_DIGITS).replace(/\D/g, "")
     : "";
 
-/** WhatsApp URL — uses VITE_WHATSAPP_DIGITS or falls back until you set digits in `.env`. */
+/** WhatsApp URL — uses VITE_WHATSAPP_DIGITS or falls back to your number. */
 function whatsappHref() {
-  if (!WHATSAPP_DIGITS.length) return "https://wa.me/";
-  return `https://wa.me/${WHATSAPP_DIGITS}?text=${encodeURIComponent(
+  const digits = WHATSAPP_DIGITS || "918080127679";
+  return `https://wa.me/${digits}?text=${encodeURIComponent(
     "Hi — I'd like to talk about content."
   )}`;
 }

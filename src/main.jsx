@@ -9,6 +9,8 @@ import CaseStudy from "./components/CaseStudy";
 import FooterCTA from "./components/FooterCTA";
 import TestimonialsTemplate from "./components/TestimonialsTemplate";
 import AmbientBackground from "./components/AmbientBackground";
+import CustomCursor from "./components/CustomCursor";
+import ClientTicker from "./components/ClientTicker";
 
 import "./index.css";
 
@@ -18,8 +20,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <div className="bg-noise"></div>
     <>
       <PageLoader />
+      <CustomCursor />
       {/* 1. The Hook: High impact intro */}
       <Header />
+      
+      {/* Credibility marquee loop */}
+      <ClientTicker />
       
       {/* 2. The Proof: Let the work speak for itself early */}
       <SelectedWork />

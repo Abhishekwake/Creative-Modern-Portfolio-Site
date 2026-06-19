@@ -96,22 +96,26 @@ export default function PageLoader() {
   return (
     <div
       ref={wrapRef}
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0a0a0a]"
       aria-hidden={false}
       aria-label="Loading"
     >
       <div
         ref={innerRef}
-        className="flex flex-col items-center gap-6 select-none"
+        className="flex flex-col items-center gap-4 select-none"
       >
         <div
-          className="font-satoshi font-medium tabular-nums tracking-[-0.02 em] text-neutral-800"
-          style={{ fontSize: "clamp(1rem, 0.5vw, 7rem)", lineHeight: 1 }}
+          className="font-satoshi font-light tabular-nums tracking-[-0.04em] text-white/90 drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+          style={{ fontSize: "clamp(4rem, 8vw, 8rem)", lineHeight: 1 }}
         >
           {String(display).padStart(2, "0")}
         </div>
-
-        
+        <div className="w-24 h-[1px] bg-white/10 overflow-hidden relative rounded-full">
+          <div 
+            className="h-full bg-white transition-all duration-300 ease-out" 
+            style={{ width: `${display}%` }}
+          />
+        </div>
       </div>
     </div>
   );

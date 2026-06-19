@@ -108,6 +108,7 @@ function useMagneticCardX({
 
 export default function Hero() {
   /** Single hero shell: trigger + pin target (avoids nested 100vh = blank band) */
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [isLightMode, setIsLightMode] = useState(false);
   const sectionRef = useRef(null);
@@ -222,6 +223,8 @@ export default function Hero() {
 
     gsap.set(follow, { x: 0, xPercent: 0, y: INITIAL_CARD_FOLLOW_Y });
 
+    const isMobileSize = window.innerWidth < 768;
+
     gsap.set(card, {
       transformOrigin: "50% 50%",
       marginLeft: 0,
@@ -231,8 +234,8 @@ export default function Hero() {
       top: "auto",
       xPercent: 0,
       yPercent: 0,
-      width: "680px",
-      height: "380px",
+      width: isMobileSize ? "calc(100vw - 2rem)" : "680px",
+      height: isMobileSize ? "calc((100vw - 2rem) * 16 / 9)" : "380px",
       borderRadius: 10,
       opacity: 1,
       boxShadow:
@@ -415,8 +418,26 @@ export default function Hero() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalScroll <= 0) return;
+      const progress = (window.scrollY / totalScroll) * 100;
+      setScrollProgress(progress);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
+      {/* Scroll Progress Bar */}
+      <div className="fixed top-0 left-0 w-full h-[2px] bg-white/5 z-[9999] pointer-events-none">
+        <div 
+          className="h-full bg-gradient-to-r from-neutral-500 via-neutral-200 to-white will-change-[width] transition-all duration-75 ease-out" 
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
       <header className="pointer-events-none [&_a]:pointer-events-auto [&_div]:pointer-events-auto [&_button]:pointer-events-auto">
         <div
           ref={headerStripRef}
@@ -457,7 +478,7 @@ export default function Hero() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
               )}
             </button>
-            <a ref={headerCtaRef} href="mailto:contact@yourdomain.com" className="group cursor-pointer pointer-events-auto relative media-uninvert" aria-label="Send us an email" role="button" style={{ opacity: 1, transform: "none" }}>
+            <a ref={headerCtaRef} href="mailto:abhishekwake111@gmail.com" className="group cursor-pointer pointer-events-auto relative media-uninvert" aria-label="Send us an email" role="button" style={{ opacity: 1, transform: "none" }}>
               <div className="absolute left-0 top-0 w-12 3xl:w-14 h-12 3xl:h-14 bg-white border border-white/10 rounded-full flex items-center justify-center rotate-180 scale-95 group-hover:scale-100 group-hover:rotate-0 group-hover:-translate-x-full transition-transform duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] -z-10">
                 <span className="text-lg lg:text-xl 3xl:text-2xl">🤙🏼</span>
               </div>
@@ -498,7 +519,7 @@ export default function Hero() {
             >
               <div
                 ref={floatingRef}
-                className="relative shrink-0 w-[min(680px,calc(100vw-2rem))] aspect-square md:aspect-[16/9] md:h-[min(380px,48vh)] max-w-[100vw] overflow-hidden rounded-[10px] will-change-[width,height,transform,opacity] shadow-sm [backface-visibility:hidden] border border-white/5 media-uninvert"
+                className="relative shrink-0 w-[min(680px,calc(100vw-2rem))] aspect-[9/16] md:aspect-[16/9] md:h-[min(380px,48vh)] max-w-[100vw] overflow-hidden rounded-[10px] will-change-[width,height,transform,opacity] shadow-sm [backface-visibility:hidden] border border-white/5 media-uninvert"
               >
                 <video
                   ref={imgRef}

@@ -2,14 +2,15 @@
 
 export const SELECTED_PROJECTS = [
   {
-    id: "k9-most-adventurous-date",
-    kind: "youtube",
-    youtubeId: "qlHZfx_zEz0",
+    id: "pay-own-clg-fee",
+    kind: "cloudinary",
+    deliveryUrl:
+      "https://res.cloudinary.com/dzzmfzt4g/video/upload/q_auto/f_auto/v1781867376/PayYourOwnClgFeeIntroEdit_qmn1rj.mp4",
     thumbSrc:
-      "https://img.youtube.com/vi/qlHZfx_zEz0/hqdefault.jpg",
-    creator: "K9 Vines",
+      "https://res.cloudinary.com/dzzmfzt4g/video/upload/so_1,q_auto,f_jpg,w_1280/v1781867376/PayYourOwnClgFeeIntroEdit_qmn1rj.jpg",
+    creator: "College Fee Intro Edit",
     audience:
-      "Most Adventurous DATE !! Another day in k9 & charu's life",
+      "Pay Your Own College Fee — Video Editing & Strategy Breakdown",
   },
   {
     id: "k9-charu-birthday",

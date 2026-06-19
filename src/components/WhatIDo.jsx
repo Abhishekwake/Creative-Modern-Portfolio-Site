@@ -68,6 +68,30 @@ export default function WhatIDo() {
     return () => ctx.revert();
   }, []);
 
+  useEffect(() => {
+    const cards = rootRef.current?.querySelectorAll(".premium-card");
+    if (!cards?.length) return;
+
+    const handleMouseMove = (e) => {
+      const card = e.currentTarget;
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty("--mouse-x", `${x}px`);
+      card.style.setProperty("--mouse-y", `${y}px`);
+    };
+
+    cards.forEach((card) => {
+      card.addEventListener("mousemove", handleMouseMove);
+    });
+
+    return () => {
+      cards.forEach((card) => {
+        card.removeEventListener("mousemove", handleMouseMove);
+      });
+    };
+  }, []);
+
   return (
     <section ref={rootRef} className="relative z-10 w-full bg-[#0a0a0a] text-[#fafafa] py-20 lg:py-32 px-4 lg:px-8 border-t border-white/5">
       <div className="max-w-[1400px] mx-auto">
@@ -77,13 +101,21 @@ export default function WhatIDo() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-          {CARDS.map((card, index) => (
+          {CARDS.map((card) => (
             <div 
               key={card.number} 
               className="premium-card relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#121212] p-8 md:p-10 lg:p-12 flex flex-col h-full group transition-transform duration-500 will-change-transform hover:-translate-y-2"
             >
               {/* The Background Glow */}
               <div className={`absolute -bottom-32 -right-32 w-80 h-80 rounded-full bg-gradient-to-tl ${card.glowColor} to-transparent blur-3xl opacity-40 group-hover:opacity-80 transition-opacity duration-700`}></div>
+              
+              {/* Dynamic Mouse Spotlight */}
+              <div 
+                className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"
+                style={{ 
+                  background: "radial-gradient(350px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(255, 255, 255, 0.05), transparent 80%)" 
+                }}
+              ></div>
               
               {/* The Dot Grid Pattern */}
               <div 

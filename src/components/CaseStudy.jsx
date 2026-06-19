@@ -87,6 +87,30 @@ export default function CaseStudy() {
     return () => ctx.revert();
   }, []);
 
+  useEffect(() => {
+    const cards = rootRef.current?.querySelectorAll(".case-study-card");
+    if (!cards?.length) return;
+
+    const handleMouseMove = (e) => {
+      const card = e.currentTarget;
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty("--mouse-x", `${x}px`);
+      card.style.setProperty("--mouse-y", `${y}px`);
+    };
+
+    cards.forEach((card) => {
+      card.addEventListener("mousemove", handleMouseMove);
+    });
+
+    return () => {
+      cards.forEach((card) => {
+        card.removeEventListener("mousemove", handleMouseMove);
+      });
+    };
+  }, []);
+
   const scrollPrev = () => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({ left: -window.innerWidth * 0.8, behavior: "smooth" });
@@ -143,13 +167,21 @@ export default function CaseStudy() {
         >
           {CASE_STUDIES.map((study, idx) => (
             <div key={idx} className="w-full min-w-full lg:min-w-[calc(100%-4rem)] shrink-0 snap-center">
-              <div className="bg-[#121212] border border-white/10 rounded-[2rem] p-8 md:p-12 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 relative overflow-hidden group">
+              <div className="case-study-card bg-[#121212] border border-white/10 rounded-[2rem] p-8 md:p-12 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 relative overflow-hidden group">
+                
+                {/* Dynamic Mouse Spotlight */}
+                <div 
+                  className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"
+                  style={{ 
+                    background: "radial-gradient(450px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(255, 255, 255, 0.05), transparent 80%)" 
+                  }}
+                ></div>
                 
                 {/* Subtle Background Glow */}
                 <div className="absolute -top-32 -right-32 w-80 h-80 bg-white/5 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                 {/* Left Column: Title & Goal */}
-                <div className="lg:col-span-5 flex flex-col justify-between">
+                <div className="lg:col-span-5 flex flex-col justify-between relative z-10">
                   <div>
                     {study.iconType === "image" ? (
                       <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 overflow-hidden mb-8 shadow-inner shrink-0">
@@ -177,7 +209,7 @@ export default function CaseStudy() {
                 </div>
 
                 {/* Right Column: Approach & Result */}
-                <div className="lg:col-span-6 lg:col-start-7 flex flex-col justify-center gap-12 lg:gap-16">
+                <div className="lg:col-span-6 lg:col-start-7 flex flex-col justify-center gap-12 lg:gap-16 relative z-10">
                   
                   <div>
                     <h5 className="text-xs font-mono tracking-widest uppercase text-[#a3a3a3] mb-6 pb-4 border-b border-white/10">

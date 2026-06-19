@@ -73,7 +73,7 @@ export default function CloudinarySdkPlayer({ cloudName, publicId, poster }) {
     <video
       ref={videoRef}
       playsInline
-      className="cld-video-player cld-video-player-skin-dark cld-fluid h-full min-h-0 w-full bg-black object-contain"
+      className="cld-video-player cld-video-player-skin-dark cld-fluid h-full min-h-0 w-full bg-black object-cover"
     />
   );
 }

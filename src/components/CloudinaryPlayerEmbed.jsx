@@ -51,7 +51,7 @@ export default function CloudinaryPlayerEmbed({
   return (
     <video
       ref={videoRef}
-      className="pointer-events-auto h-full w-full bg-black object-contain"
+      className="pointer-events-auto h-full w-full bg-black object-cover"
       controls
       playsInline
       preload="auto"
