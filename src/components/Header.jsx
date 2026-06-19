@@ -212,7 +212,7 @@ export default function Hero() {
     };
   }, []);
 
-  /* ---------- Scroll: card expands to fullscreen (scrub), stays viewport-centered ---------- */
+  /* ---------- Scroll: card expands to fullscreen (scrub) on desktop, static on mobile ---------- */
   useEffect(() => {
     const card = floatingRef.current;
     const section = sectionRef.current;
@@ -221,167 +221,174 @@ export default function Hero() {
     const follow = cardFollowRef.current;
     if (!card || !section || !headline || !img || !follow) return;
 
-    gsap.set(follow, { x: 0, xPercent: 0, y: INITIAL_CARD_FOLLOW_Y });
+    const mm = gsap.matchMedia();
 
-    const isMobileSize = window.innerWidth < 768;
+    mm.add({
+      isMobile: "(max-width: 767px)",
+      isDesktop: "(min-width: 768px)"
+    }, (context) => {
+      const { isMobile, isDesktop } = context.conditions;
 
-    gsap.set(card, {
-      transformOrigin: "50% 50%",
-      marginLeft: 0,
-      marginRight: 0,
-      position: "relative",
-      left: "auto",
-      top: "auto",
-      xPercent: 0,
-      yPercent: 0,
-      width: isMobileSize ? "calc(100vw - 2rem)" : "680px",
-      height: isMobileSize ? "calc((100vw - 2rem) * 16 / 9)" : "380px",
-      borderRadius: 10,
-      opacity: 1,
-      boxShadow:
-        "0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)",
-    });
-    gsap.set(img, {
-      scale: 1,
-      filter: "brightness(1) blur(0px)",
-      transformOrigin: "center center",
-    });
+      // Center card statically on mobile, offset it on desktop
+      gsap.set(follow, { x: 0, xPercent: 0, y: isMobile ? 0 : INITIAL_CARD_FOLLOW_Y });
 
-
-
-    const strip = headerStripRef.current;
-    const cta = headerCtaRef.current;
-    if (strip) gsap.set(strip, { autoAlpha: 1, y: 0 });
-    if (cta) gsap.set(cta, { autoAlpha: 1, y: 0 });
-
-    const hideHeaderBar = () => {
-      const targets = [strip].filter(Boolean);
-      if (!targets.length) return;
-      gsap.killTweensOf(targets);
-      gsap.to(targets, {
-        autoAlpha: 0,
-        y: -28,
-        duration: 0.55,
-        ease: "power3.inOut",
-        stagger: 0.04,
-        overwrite: "auto",
-        onComplete: () => {
-          targets.forEach((el) => {
-            if (el) el.setAttribute("aria-hidden", "true");
-          });
-        },
+      gsap.set(card, {
+        transformOrigin: "50% 50%",
+        marginLeft: 0,
+        marginRight: 0,
+        position: "relative",
+        left: "auto",
+        top: "auto",
+        xPercent: 0,
+        yPercent: 0,
+        width: isMobile ? "calc(100vw - 2rem)" : "680px",
+        height: isMobile ? "calc((100vw - 2rem) * 16 / 9)" : "380px",
+        borderRadius: 10,
+        opacity: 1,
+        boxShadow:
+          "0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)",
       });
-    };
 
-    const showHeaderBar = () => {
-      const targets = [strip].filter(Boolean);
-      if (!targets.length) return;
-      gsap.killTweensOf(targets);
-      targets.forEach((el) => {
-        el.removeAttribute("aria-hidden");
-      });
-      gsap.to(targets, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power3.out",
-        stagger: 0.05,
-        overwrite: "auto",
-      });
-    };
-
-    let lastProgress = 0;
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "+=55%",
-        scrub: 1,
-        pin: section,
-        anticipatePin: 1,
-        onUpdate: (self) => {
-          const p = self.progress;
-          scrollProgressRef.current = p;
-          if (
-            lastProgress <= MAGNETIC_OFF_SCROLL_PROGRESS &&
-            p > MAGNETIC_OFF_SCROLL_PROGRESS &&
-            xToRef.current
-          ) {
-            xToRef.current(0);
-          }
-          lastProgress = p;
-        },
-        onLeave: hideHeaderBar,
-        onEnterBack: showHeaderBar,
-      },
-    });
-
-    /* ----- Phase 1 (scroll ~0–50%): hero → fullscreen ----- */
-    tl.to(
-      follow,
-      {
-        y: 0,
-        ease: "power3.inOut",
-        duration: 1,
-      },
-      0
-    );
-
-    tl.to(
-      card,
-      {
-        width: "100vw",
-        height: "100svh",
-        borderRadius: FULLSCREEN_RADIUS,
-        boxShadow: "0 0 0 0 rgba(0,0,0,0)",
-        ease: "power3.inOut",
-        duration: 1,
-      },
-      0
-    );
-
-    tl.to(
-      headline,
-      {
-        y: -140,
-        opacity: 0,
-        filter: "blur(8px)",
-        ease: "power3.in",
-        duration: 0.55,
-      },
-      0
-    );
-
-    tl.to(
-      img,
-      {
-        scale: 1.06,
-        filter: "brightness(0.7) blur(3px)",
-        ease: "power2.inOut",
-        duration: 0.45,
-      },
-      0
-    );
-
-    tl.to(
-      img,
-      {
+      gsap.set(img, {
         scale: 1,
-        filter: "brightness(0.9) blur(0px)",
-        ease: "power3.out",
-        duration: 0.55,
-      },
-      0.45
-    );
+        filter: "brightness(1) blur(0px)",
+        transformOrigin: "center center",
+      });
 
-    requestAnimationFrame(() => {
-      const r = section.getBoundingClientRect();
-      if (r.bottom <= 64) hideHeaderBar();
+      const strip = headerStripRef.current;
+      const cta = headerCtaRef.current;
+      if (strip) gsap.set(strip, { autoAlpha: 1, y: 0 });
+      if (cta) gsap.set(cta, { autoAlpha: 1, y: 0 });
+
+      if (isDesktop) {
+        const hideHeaderBar = () => {
+          const targets = [strip].filter(Boolean);
+          if (!targets.length) return;
+          gsap.killTweensOf(targets);
+          gsap.to(targets, {
+            autoAlpha: 0,
+            y: -28,
+            duration: 0.55,
+            ease: "power3.inOut",
+            stagger: 0.04,
+            overwrite: "auto",
+            onComplete: () => {
+              targets.forEach((el) => {
+                if (el) el.setAttribute("aria-hidden", "true");
+              });
+            },
+          });
+        };
+
+        const showHeaderBar = () => {
+          const targets = [strip].filter(Boolean);
+          if (!targets.length) return;
+          gsap.killTweensOf(targets);
+          targets.forEach((el) => {
+            el.removeAttribute("aria-hidden");
+          });
+          gsap.to(targets, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.6,
+            ease: "power3.out",
+            stagger: 0.05,
+            overwrite: "auto",
+          });
+        };
+
+        let lastProgress = 0;
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "+=55%",
+            scrub: 1,
+            pin: section,
+            anticipatePin: 1,
+            onUpdate: (self) => {
+              const p = self.progress;
+              scrollProgressRef.current = p;
+              if (
+                lastProgress <= MAGNETIC_OFF_SCROLL_PROGRESS &&
+                p > MAGNETIC_OFF_SCROLL_PROGRESS &&
+                xToRef.current
+              ) {
+                xToRef.current(0);
+              }
+              lastProgress = p;
+            },
+            onLeave: hideHeaderBar,
+            onEnterBack: showHeaderBar,
+          },
+        });
+
+        tl.to(
+          follow,
+          {
+            y: 0,
+            ease: "power3.inOut",
+            duration: 1,
+          },
+          0
+        );
+
+        tl.to(
+          card,
+          {
+            width: "100vw",
+            height: "100svh",
+            borderRadius: FULLSCREEN_RADIUS,
+            boxShadow: "0 0 0 0 rgba(0,0,0,0)",
+            ease: "power3.inOut",
+            duration: 1,
+          },
+          0
+        );
+
+        tl.to(
+          headline,
+          {
+            y: -140,
+            opacity: 0,
+            filter: "blur(8px)",
+            ease: "power3.in",
+            duration: 0.55,
+          },
+          0
+        );
+
+        tl.to(
+          img,
+          {
+            scale: 1.06,
+            filter: "brightness(0.7) blur(3px)",
+            ease: "power2.inOut",
+            duration: 0.45,
+          },
+          0
+        );
+
+        tl.to(
+          img,
+          {
+            scale: 1,
+            filter: "brightness(0.9) blur(0px)",
+            ease: "power3.out",
+            duration: 0.55,
+          },
+          0.45
+        );
+
+        requestAnimationFrame(() => {
+          const r = section.getBoundingClientRect();
+          if (r.bottom <= 64) hideHeaderBar();
+        });
+      }
     });
 
     return () => {
-      tl.scrollTrigger?.kill();
-      tl.kill();
+      mm.revert();
     };
   }, []);
 

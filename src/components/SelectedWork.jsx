@@ -31,7 +31,8 @@ function youtubeEmbedSrc(project) {
 
 function WorkCard({ project }) {
   const [loaded, setLoaded] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" ? window.innerWidth < 768 : false);
+  const lastOpenTime = useRef(0);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -43,6 +44,7 @@ function WorkCard({ project }) {
   }, []);
 
   const open = () => {
+    lastOpenTime.current = Date.now();
     /** Commit player in the same synchronous turn as the tap so autoplay-with-audio aligns with user activation. */
     flushSync(() => {
       setLoaded(true);
@@ -51,6 +53,7 @@ function WorkCard({ project }) {
 
   const close = (e) => {
     e?.stopPropagation();
+    if (Date.now() - lastOpenTime.current < 400) return;
     setLoaded(false);
   };
 
@@ -148,13 +151,13 @@ function WorkCard({ project }) {
       {/* Modal/Lightbox for Mobile devices */}
       {isMobile && loaded && (
         <div 
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0a0a0af2] backdrop-blur-md p-4 animate-fade-in"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0a0a0a] backdrop-blur-md p-4 animate-fade-in"
           onClick={close}
         >
           {/* Close button */}
           <button
             type="button"
-            onClick={close}
+            onClick={(e) => { e.stopPropagation(); close(e); }}
             className="absolute top-6 right-6 z-[110] flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white backdrop-blur-md transition-all active:scale-95"
             aria-label="Close modal"
           >
