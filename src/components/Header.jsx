@@ -510,14 +510,14 @@ export default function Hero() {
 
       <section
         ref={sectionRef}
-        className="relative z-10 min-h-screen md:h-[100svh] w-full overflow-hidden [contain:layout_paint] bg-[#0a0a0a] isolate flex flex-col items-center justify-center pt-28 pb-12 md:pt-0 md:pb-0 gap-8 md:gap-0"
+        className="relative z-10 min-h-screen md:h-[100svh] w-full overflow-hidden [contain:layout_paint] bg-[#0a0a0a] isolate flex flex-col items-center justify-center pt-16 pb-8 md:pt-0 md:pb-0 gap-4 md:gap-0"
       >
         <div className="absolute bottom-0 left-0 right-0 h-[0%] bg-gradient-to-t from-[#0a0a0a] to-transparent z-[1]" />
 
         <div className="relative md:absolute md:inset-0 z-[5] flex items-center justify-center pointer-events-none px-4 lg:px-8 w-full">
           <div
             ref={cardTrackRef}
-            className="pointer-events-auto relative w-full max-w-[min(1100px,calc(100vw-2rem))] min-h-[min(280px,40vh)] md:min-h-[min(380px,48vh)] flex items-center justify-center"
+            className="pointer-events-auto relative w-full max-w-[min(1100px,calc(100vw-2rem))] min-h-[min(200px,30vh)] md:min-h-[min(380px,48vh)] flex items-center justify-center"
           >
             {/* Card listener - now allows scroll through on mobile */}
             <div
@@ -558,23 +558,23 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="relative md:absolute md:bottom-24 lg:bottom-20 left-0 right-0 px-4 lg:px-8 pointer-events-none [&_.headline-hit]:pointer-events-auto w-full z-10 mt-6 md:mt-0">
+        <div className="relative md:absolute md:bottom-20 lg:bottom-20 left-0 right-0 px-4 lg:px-8 pointer-events-none [&_.headline-hit]:pointer-events-auto w-full z-10 mt-2 md:mt-0">
           <div
             ref={headlineRef}
             className="headline-hit col-span-12 w-full will-change-transform"
           >
             <div className="grid grid-cols-12 items-end gap-x-2">
-              <span className="font-medium col-span-3 mb-4 lg:mb-6 text-[clamp(12px,3vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
+              <span className="font-medium col-span-3 mb-2 lg:mb-6 text-[clamp(10px,2.5vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
                 A
               </span>
-              <span className="font-medium col-span-6 mb-4 lg:mb-6 text-center text-[clamp(12px,3vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
+              <span className="font-medium col-span-6 mb-2 lg:mb-6 text-center text-[clamp(10px,2.5vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
                 Seriously
               </span>
-              <span className="font-medium col-span-3 mb-4 lg:mb-6 text-right text-[clamp(12px,3vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
+              <span className="font-medium col-span-3 mb-2 lg:mb-6 text-right text-[clamp(10px,2.5vw,20px)] uppercase tracking-widest text-[#a3a3a3]">
                 Good
               </span>
 
-              <h1 className="col-span-12 text-center font-satoshi font-black uppercase leading-[0.95] tracking-[-0.06em] text-[#fafafa] text-[clamp(3rem,12vw,12rem)] max-w-[min(100%,calc(100vw-2rem))] mx-auto whitespace-normal sm:whitespace-nowrap drop-shadow-2xl">
+              <h1 className="col-span-12 text-center font-satoshi font-black uppercase leading-[0.9] tracking-[-0.06em] text-[#fafafa] text-[clamp(2.5rem,10vw,12rem)] max-w-[min(100%,calc(100vw-2rem))] mx-auto whitespace-normal sm:whitespace-nowrap drop-shadow-2xl">
                 Video Editor
               </h1>
             </div>
